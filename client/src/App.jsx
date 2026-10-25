@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
 import "./App.css";
+import ExpenseCharts from "./components/ExpenseCharts";
+
 
 const localDate = () => {
   const d = new Date();
@@ -295,7 +297,7 @@ export default function App() {
         </form>
       </section>
 
-      <section className="card">
+      {/* <section className="card">
         <h2>Expense by Category</h2>
         {Object.keys(expenseByCategory).length === 0 ? (
           <p>No expenses for this month.</p>
@@ -307,7 +309,12 @@ export default function App() {
             </div>
           ))
         )}
-      </section>
+      </section> */}
+
+      <ExpenseCharts
+        transactions={transactions}
+        summary={summary}
+      />
 
       <section className="card">
         <h2>Transactions — {month}</h2>

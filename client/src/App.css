@@ -349,3 +349,178 @@ button.delete {
     flex-direction: column;
   }
 }
+
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.chart-card {
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.chart-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.chart-heading h2 {
+  font-size: 19px;
+  margin: 0 0 5px;
+}
+
+.chart-heading p {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.chart-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  flex-shrink: 0;
+}
+
+.chart-icon.purple {
+  background: #f3e8ff;
+  color: #9333ea;
+}
+
+.chart-icon.blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.donut-wrapper {
+  position: relative;
+  height: 270px;
+}
+
+.donut-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  text-align: center;
+}
+
+.donut-center small {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.donut-center strong {
+  color: #172554;
+  font-size: 17px;
+  margin-top: 6px;
+}
+
+.chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.legend-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-name {
+  flex: 1;
+  color: #64748b;
+}
+
+.legend-row strong {
+  color: #172554;
+}
+
+.bar-chart-wrapper {
+  width: 100%;
+  height: 300px;
+}
+
+.spending-insight {
+  margin-top: 24px;
+  padding: 20px;
+  border-radius: 14px;
+  background: #f8faff;
+}
+
+.spending-insight p {
+  color: #64748b;
+  font-size: 13px;
+  margin: 0 0 8px;
+}
+
+.spending-insight h3 {
+  color: #172554;
+  font-size: 28px;
+  margin: 0 0 14px;
+}
+
+.progress-track {
+  height: 9px;
+  border-radius: 20px;
+  background: #e2e8f0;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #3b82f6);
+  border-radius: 20px;
+  transition: width 0.3s ease;
+}
+
+.spending-insight small {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.chart-empty {
+  padding: 80px 20px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+@media (max-width: 900px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .donut-center strong {
+    font-size: 14px;
+  }
+
+  .chart-card {
+    padding: 18px 12px;
+  }
+}
