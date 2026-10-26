@@ -4,6 +4,7 @@ import { api } from "./api";
 import "./App.css";
 import ExpenseCharts from "./components/ExpenseCharts";
 import MonthlyBudget from "./components/MonthlyBudget";
+import Login from "./components/Login";
 
 
 const localDate = () => {
@@ -30,7 +31,7 @@ const money = (value) =>
         maximumFractionDigits: 2,
     })}`;
 
-export default function App() {
+function Dashboard({user, onLogout}) {
     const [month, setMonth] = useState(localDate().slice(0, 7));
     const [categories, setCategories] = useState([]);
     const [transactions, setTransactions] = useState([]);
@@ -170,6 +171,14 @@ export default function App() {
                         onChange={(e) => setMonth(e.target.value)}
                     />
                 </label>
+
+                <button
+                    type="button"
+                    className="secondary"
+                    onClick={onLogout}
+                >
+                    Logout
+                </button>
             </header>
 
             {error && <div className="error">{error}</div>}
@@ -377,3 +386,98 @@ export default function App() {
         </main>
     );
 }
+
+
+export default function App() {
+    const [user, setUser] = useState(null);
+    const [checkingSession, setCheckingSession] = useState(true);
+    const [authError, setAuthError] = useState("");
+    const [loggingOut, setLoggingOut] = useState(false);
+
+    useEffect(() => {
+        let active = true;
+
+        api.me()
+            .then((result) => {
+                if (active) {
+                    setUser(result.user);
+                    setAuthError("");
+                }
+            })
+            .catch((err) => {
+                if (!active) return;
+
+                setUser(null);
+
+                if (err.status !== 401) {
+                    setAuthError(err.message);
+                }
+            })
+            .finally(() => {
+                if (active) {
+                    setCheckingSession(false);
+                }
+            });
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
+    const handleLogin = (loggedInUser) => {
+        setUser(loggedInUser);
+        setAuthError("");
+    };
+
+    const handleLogout = async () => {
+        setLoggingOut(true);
+        setAuthError("");
+
+        try {
+            await api.logout();
+            setUser(null);
+        } catch (err) {
+            setAuthError(`Logout failed: ${err.message}`);
+        } finally {
+            setLoggingOut(false);
+        }
+    };
+
+    if (checkingSession) {
+        return (
+            <main className="container">
+                <p>Checking session...</p>
+            </main>
+        );
+    }
+
+    if (!user) {
+        return (
+            <>
+                {authError && (
+                    <div className="error" role="alert">
+                        {authError}
+                    </div>
+                )}
+                <Login onLogin={handleLogin} />
+            </>
+        );
+    }
+
+    return (
+        <>
+            {authError && (
+                <div className="error" role="alert">
+                    {authError}
+                </div>
+            )}
+            <Dashboard
+                key={user.id}
+                user={user}
+                onLogout={handleLogout}
+                loggingOut={loggingOut}
+            />
+        </>
+    );
+}
+

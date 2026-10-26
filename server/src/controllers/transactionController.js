@@ -64,6 +64,7 @@ async function validateTransaction(body) {
 exports.getAll = async (req, res) => {
   try {
     const { month } = req.query;
+    const userId = req.session.userId;
 
     if (!validMonth(month)) {
       return res.status(400).json({
@@ -80,16 +81,20 @@ exports.getAll = async (req, res) => {
               DATE_FORMAT(t.transaction_date, '%Y-%m-%d') AS transaction_date
        FROM transactions t
        JOIN categories c ON c.id = t.category_id
-       WHERE t.transaction_date >= ?
+       WHERE t.user_id = ?
+         AND t.transaction_date >= ?
          AND t.transaction_date < ?
        ORDER BY t.transaction_date DESC, t.id DESC`,
-      [start, end]
+      [userId, start, end]
     );
 
-    res.json({ success: true, data: rows });
+    return res.json({ success: true, data: rows });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("Get transactions error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
@@ -97,6 +102,7 @@ exports.getAll = async (req, res) => {
 exports.getSummary = async (req, res) => {
   try {
     const { month } = req.query;
+    const userId = req.session.userId;
 
     if (!validMonth(month)) {
       return res.status(400).json({
@@ -114,15 +120,16 @@ exports.getSummary = async (req, res) => {
          COALESCE(SUM(CASE WHEN type = 'expense'
            THEN amount ELSE 0 END), 0) AS expense
        FROM transactions
-       WHERE transaction_date >= ?
+       WHERE user_id = ?
+         AND transaction_date >= ?
          AND transaction_date < ?`,
-      [start, end]
+      [userId, start, end]
     );
 
     const income = Number(rows[0].income);
     const expense = Number(rows[0].expense);
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         month,
@@ -132,38 +139,52 @@ exports.getSummary = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("Get summary error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
 // POST /api/transactions
 exports.create = async (req, res) => {
   try {
-    const { error, data } = await validateTransaction(req.body);
+    const userId = req.session.userId;
+    const { error, data } = await validateTransaction(req.body || {});
 
     if (error) {
-      return res.status(400).json({ success: false, message: error });
+      return res.status(400).json({
+        success: false,
+        message: error,
+      });
     }
 
     const [result] = await db.execute(
       `INSERT INTO transactions
-       (category_id, type, amount, note, transaction_date)
-       VALUES (?, ?, ?, ?, ?)`,
+       (user_id, category_id, type, amount, note, transaction_date)
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [
-        data.category_id, data.type, data.amount,
-        data.note, data.transaction_date,
+        userId,
+        data.category_id,
+        data.type,
+        data.amount,
+        data.note,
+        data.transaction_date,
       ]
     );
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Transaction created",
       id: result.insertId,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("Create transaction error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
@@ -171,40 +192,57 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const id = Number(req.params.id);
+    const userId = req.session.userId;
 
     if (!Number.isSafeInteger(id) || id <= 0) {
       return res.status(400).json({
-        success: false, message: "Invalid ID",
+        success: false,
+        message: "Invalid ID",
       });
     }
 
-    const { error, data } = await validateTransaction(req.body);
+    const { error, data } = await validateTransaction(req.body || {});
 
     if (error) {
-      return res.status(400).json({ success: false, message: error });
+      return res.status(400).json({
+        success: false,
+        message: error,
+      });
     }
 
     const [result] = await db.execute(
       `UPDATE transactions
        SET category_id = ?, type = ?, amount = ?,
            note = ?, transaction_date = ?
-       WHERE id = ?`,
+       WHERE id = ? AND user_id = ?`,
       [
-        data.category_id, data.type, data.amount,
-        data.note, data.transaction_date, id,
+        data.category_id,
+        data.type,
+        data.amount,
+        data.note,
+        data.transaction_date,
+        id,
+        userId,
       ]
     );
 
     if (!result.affectedRows) {
       return res.status(404).json({
-        success: false, message: "Transaction not found",
+        success: false,
+        message: "Transaction not found",
       });
     }
 
-    res.json({ success: true, message: "Transaction updated" });
+    return res.json({
+      success: true,
+      message: "Transaction updated",
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("Update transaction error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
@@ -212,27 +250,36 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
   try {
     const id = Number(req.params.id);
+    const userId = req.session.userId;
 
     if (!Number.isSafeInteger(id) || id <= 0) {
       return res.status(400).json({
-        success: false, message: "Invalid ID",
+        success: false,
+        message: "Invalid ID",
       });
     }
 
     const [result] = await db.execute(
-      "DELETE FROM transactions WHERE id = ?",
-      [id]
+      "DELETE FROM transactions WHERE id = ? AND user_id = ?",
+      [id, userId]
     );
 
     if (!result.affectedRows) {
       return res.status(404).json({
-        success: false, message: "Transaction not found",
+        success: false,
+        message: "Transaction not found",
       });
     }
 
-    res.json({ success: true, message: "Transaction deleted" });
+    return res.json({
+      success: true,
+      message: "Transaction deleted",
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("Delete transaction error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
