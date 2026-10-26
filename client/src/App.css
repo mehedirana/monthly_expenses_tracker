@@ -524,3 +524,156 @@ button.delete {
     padding: 18px 12px;
   }
 }
+
+.budget-card {
+  padding: 28px;
+}
+
+.budget-header,
+.budget-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.budget-header {
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+
+.budget-heading h2 {
+  margin: 0 0 5px;
+}
+
+.budget-heading p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.budget-icon {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.budget-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.budget-stats > div {
+  padding: 20px;
+  border-radius: 14px;
+  background: #f8faff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.budget-stats span {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.budget-stats strong {
+  font-size: 22px;
+  overflow-wrap: anywhere;
+}
+
+.budget-progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.budget-progress {
+  height: 12px;
+  border-radius: 20px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.budget-progress-fill {
+  height: 100%;
+  border-radius: 20px;
+  background: #10b981;
+  transition: width 0.3s ease;
+}
+
+.budget-progress-fill.warning {
+  background: #f59e0b;
+}
+
+.budget-progress-fill.exceeded {
+  background: #ef4444;
+}
+
+.budget-message {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 15px;
+  margin-top: 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.budget-message.safe {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.budget-message.warning {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.budget-message.exceeded {
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.budget-form {
+  display: flex;
+  align-items: end;
+  gap: 16px;
+}
+
+.budget-form label {
+  flex: 1;
+}
+
+.budget-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.budget-buttons button {
+  min-height: 46px;
+}
+
+@media (max-width: 700px) {
+  .budget-header {
+    flex-wrap: wrap;
+  }
+
+  .budget-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .budget-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

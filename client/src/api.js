@@ -44,4 +44,13 @@ export const api = {
     request(`/transactions/${id}`, {
       method: "DELETE",
     }),
+
+  getBudget: (month) =>
+    request(`/budgets?month=${encodeURIComponent(month)}`),
+
+  saveBudget: (data) =>
+    request("/budgets", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
 };
